@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 2s
+
+scrape_configs:
+  - job_name: "incidentlab-service-a"
+    static_configs:
+      - targets: ["service-a:8000"]
+  - job_name: "incidentlab-service-b"
+    static_configs:
+      - targets: ["service-b:8000"]
+  - job_name: "incidentlab-service-c"
+    static_configs:
+      - targets: ["service-c:8000"]

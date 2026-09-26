@@ -1,0 +1,124 @@
+networks:
+  # Peer-to-peer channel. This is the ONLY network that gets disconnected
+  # to simulate a partition. node-1 and node-2 get per-network aliases
+  # here (node-1-peer / node-2-peer) that don't exist on quorum-net, so
+  # there's no hidden fallback path once this network is severed.
+  cluster-net:
+    name: incidentlab-03-cluster-net
+  # Witness + client access. Both nodes stay on this network throughout
+  # every stage -- the witness is reachable even during a partition,
+  # which is the whole point: it's a third party, not a second vote from
+  # the same two sides that are disagreeing.
+  quorum-net:
+    name: incidentlab-03-quorum-net
+
+services:
+  witness:
+    build: ./services/witness
+    container_name: incidentlab-03-witness
+    networks:
+      - quorum-net
+    environment:
+      LEASE_TTL_SECONDS: "2.0"
+    ports:
+      - "127.0.0.1:8022:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  node-1:
+    build: ./services/node
+    container_name: incidentlab-03-node-1
+    depends_on:
+      witness:
+        condition: service_healthy
+    volumes:
+      - .:/app/pattern
+    networks:
+      cluster-net:
+        aliases:
+          - node-1-peer
+      quorum-net: {}
+    environment:
+      NODE_ID: "node-1"
+      PEER_ID: "node-2"
+      PEER_URL: "http://node-2-peer:8000"
+      WITNESS_URL: "http://witness:8000"
+      MITIGATION_ENABLED: "${MITIGATION_ENABLED:-false}"
+      HEARTBEAT_INTERVAL_MS: "300"
+      PEER_CHECK_TIMEOUT_MS: "500"
+      WITNESS_TIMEOUT_MS: "500"
+    ports:
+      - "127.0.0.1:8020:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  node-2:
+    build: ./services/node
+    container_name: incidentlab-03-node-2
+    depends_on:
+      witness:
+        condition: service_healthy
+    networks:
+      cluster-net:
+        aliases:
+          - node-2-peer
+      quorum-net: {}
+    environment:
+      NODE_ID: "node-2"
+      PEER_ID: "node-1"
+      PEER_URL: "http://node-1-peer:8000"
+      WITNESS_URL: "http://witness:8000"
+      MITIGATION_ENABLED: "${MITIGATION_ENABLED:-false}"
+      HEARTBEAT_INTERVAL_MS: "300"
+      PEER_CHECK_TIMEOUT_MS: "500"
+      WITNESS_TIMEOUT_MS: "500"
+    ports:
+      - "127.0.0.1:8021:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  k6:
+    image: grafana/k6:1.3.0
+    profiles: ["tools"]
+    networks:
+      - quorum-net
+    volumes:
+      - ./load:/scripts
+      - ./results:/scripts/results
+    depends_on:
+      - node-1
+      - node-2
+
+  prometheus:
+    image: prom/prometheus:v2.53.5
+    networks:
+      - quorum-net
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "127.0.0.1:9092:9090"
+
+  grafana:
+    image: grafana/grafana:13.1.3
+    networks:
+      - quorum-net
+    ports:
+      - "127.0.0.1:3002:3000"
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Viewer"
+      GF_SECURITY_ADMIN_PASSWORD: "incidentlab"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus

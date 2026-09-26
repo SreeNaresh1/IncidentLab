@@ -1,0 +1,55 @@
+# Pattern metadata schema — the shape every pattern's README embeds as a
+# fenced YAML block (not real front matter yet — nothing parses it out of
+# the README programmatically; see "Known limitations" in each pattern's
+# README). This isn't machine-enforced yet either (v1 is 3 patterns, not
+# worth a linter) — it's the shared shape that makes patterns comparable
+# once the catalog grows.
+
+id: string # e.g. "01-thundering-herd"
+version: string # semver of the lab itself, e.g. "1.0.0"
+pattern: string # short name, e.g. "thundering-herd"
+category: string # e.g. "cache", "retries", "consensus"
+difficulty: beginner | intermediate | advanced
+
+mechanism: string # one paragraph: what actually happens, mechanically
+trigger: string # the specific condition that sets it off
+
+baseline:
+  load: string # e.g. "20 VUs, 30s, constant"
+  expected: string # what healthy looks like
+
+expected_failure:
+  load: string # e.g. "300 VUs, 45s, constant, single hot key"
+  symptoms: [string] # e.g. ["P99 latency explosion", "DB saturation"]
+
+detection:
+  metrics: [string] # signals that would tell you this is happening in production
+
+mitigation:
+  techniques: [string]
+  tradeoffs: [string] # what the fix costs you
+
+verification: string # prose pointer to this pattern's experiment.json — the
+                      # enforced criteria live there, not duplicated here.
+                      # experiment.json declares two groups: failure_criteria
+                      # (did BREAK actually reproduce the incident?) and
+                      # recovery_criteria (did FIX actually recover it?).
+                      # Both must pass a real run — a BREAK that barely
+                      # differs from BASELINE invalidates the experiment
+                      # regardless of how good FIX's numbers look. Criteria
+                      # values must be relative/portable, not fixed absolute
+                      # values tied to a specific machine (e.g.
+                      # "P99 <= 2x baseline", not "P99 < 200ms").
+
+real_world_examples: [string]
+
+requires:
+  - docker
+  - docker-compose
+
+architecture:
+  services: [string]
+
+experiment:
+  duration: string
+  load_tool: string

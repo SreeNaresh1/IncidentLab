@@ -1,0 +1,100 @@
+name: IncidentLab E2E
+
+on:
+  push:
+    paths:
+      - "patterns/**"
+      - "tools/**"
+      - ".github/workflows/e2e.yml"
+  pull_request:
+    paths:
+      - "patterns/**"
+      - "tools/**"
+  schedule:
+    # Catches drift even when nobody's touched the code — e.g. a pinned
+    # image tag getting pulled from its registry, or a failure mechanism
+    # silently no longer triggering the way it's supposed to.
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  thundering-herd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: patterns/01-thundering-herd
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run the full experiment
+        run: |
+          ./run.sh
+          ./break.sh
+          ./fix.sh
+          ./verify.sh
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: thundering-herd-results
+          path: patterns/01-thundering-herd/results/
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
+
+  cascading-retry-storm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: patterns/02-cascading-retry-storm
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run the full experiment
+        run: |
+          ./run.sh
+          ./break.sh
+          ./fix.sh
+          ./verify.sh
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cascading-retry-storm-results
+          path: patterns/02-cascading-retry-storm/results/
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
+
+  split-brain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: patterns/03-split-brain
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run the full experiment
+        run: |
+          ./run.sh
+          ./break.sh
+          ./fix.sh
+          ./verify.sh
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: split-brain-results
+          path: patterns/03-split-brain/results/
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

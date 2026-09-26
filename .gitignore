@@ -1,0 +1,63 @@
+# -----------------------------------------------------------------------
+# Generated experiment result JSON files -- excluded because they change
+# on every real Docker run and would create noisy diffs. RESULT.md is the
+# permanent per-pattern evidence and IS committed. .gitkeep ensures the
+# results/ directory exists when cloning.
+# -----------------------------------------------------------------------
+**/results/*.json
+!**/results/.gitkeep
+
+# -----------------------------------------------------------------------
+# Python
+# -----------------------------------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# -----------------------------------------------------------------------
+# Environment / secrets -- NEVER commit these
+# -----------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# -----------------------------------------------------------------------
+# OS / editor junk
+# -----------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# -----------------------------------------------------------------------
+# Docker runtime artifacts
+# -----------------------------------------------------------------------
+docker-compose.override.yml
+
+# -----------------------------------------------------------------------
+# Node / k6 (k6 itself runs in Docker; these protect against accidental
+# local installs during development)
+# -----------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+
+# -----------------------------------------------------------------------
+# Temporary / scratch
+# -----------------------------------------------------------------------
+*.tmp
+*.bak

@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 2s
+
+scrape_configs:
+  - job_name: "incidentlab-witness"
+    static_configs:
+      - targets: ["witness:8000"]
+  - job_name: "incidentlab-node-1"
+    static_configs:
+      - targets: ["node-1:8000"]
+  - job_name: "incidentlab-node-2"
+    static_configs:
+      - targets: ["node-2:8000"]

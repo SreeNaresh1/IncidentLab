@@ -1,0 +1,57 @@
+{
+  "id": "03-split-brain",
+  "failure_criteria": [
+    {
+      "name": "BASELINE precondition: exactly one leader before anything is broken",
+      "metric": "baseline_leader_count",
+      "operator": "==",
+      "threshold": 1
+    },
+    {
+      "name": "BASELINE precondition: zero divergence before anything is broken",
+      "metric": "baseline_divergent_keys",
+      "operator": "==",
+      "threshold": 0
+    },
+    {
+      "name": "BREAK: the partition actually severed peer communication",
+      "metric": "break_partition_confirmed",
+      "operator": "==",
+      "threshold": 1
+    },
+    {
+      "name": "BREAK: both nodes claim leadership (the actual split-brain condition)",
+      "metric": "break_leader_count",
+      "operator": "==",
+      "threshold": 2
+    },
+    {
+      "name": "BREAK: divergent keys > 0 (both leaders actually accepted conflicting writes)",
+      "metric": "break_divergent_keys",
+      "operator": ">",
+      "threshold": 0
+    }
+  ],
+  "recovery_criteria": [
+    {
+      "name": "FIX: exactly one leader while partitioned (witness-mediated quorum)",
+      "metric": "fix_leader_count",
+      "operator": "==",
+      "threshold": 1
+    },
+    {
+      "name": "FIX: zero new divergence created during the partition",
+      "metric": "fix_divergent_keys",
+      "operator": "==",
+      "threshold": 0
+    }
+  ],
+  "informational_metrics": [
+    "fix_availability_accepted_writes",
+    "fix_availability_total_writes",
+    "fix_availability_rate",
+    "fix_follower_writes_rejected",
+    "reconciled_keys_pushed",
+    "reconciled_keys_discarded"
+  ]
+}

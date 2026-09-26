@@ -1,0 +1,46 @@
+{
+  "id": "02-cascading-retry-storm",
+  "failure_criteria": [
+    {
+      "name": "BREAK peak C outstanding requests reaches at least 5x BASELINE",
+      "metric": "break_c_outstanding_ratio",
+      "operator": ">=",
+      "threshold": 5.0
+    },
+    {
+      "name": "BREAK P99 at A reaches at least 2x BASELINE",
+      "metric": "break_p99_ratio_to_baseline",
+      "operator": ">=",
+      "threshold": 2.0
+    }
+  ],
+  "recovery_criteria": [
+    {
+      "name": "FIX peak C outstanding requests returns to <= 2x BASELINE",
+      "metric": "fix_c_outstanding_ratio",
+      "operator": "<=",
+      "threshold": 2.0
+    },
+    {
+      "name": "FIX P99 at A returns to <= 2x BASELINE",
+      "metric": "fix_p99_ratio_to_baseline",
+      "operator": "<=",
+      "threshold": 2.0
+    }
+  ],
+  "informational_metrics": [
+    "baseline_success_rate",
+    "baseline_c_outstanding_max",
+    "baseline_c_processing_max",
+    "break_success_rate",
+    "break_c_outstanding_max",
+    "break_c_processing_max",
+    "break_retry_attempts_total",
+    "fix_success_rate",
+    "fix_c_outstanding_max",
+    "fix_c_processing_max",
+    "fix_retry_attempts_total",
+    "fix_circuit_breaker_opens_total",
+    "fix_rejected_by_breaker_total"
+  ]
+}

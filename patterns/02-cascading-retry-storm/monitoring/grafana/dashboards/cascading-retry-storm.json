@@ -1,0 +1,50 @@
+{
+  "title": "IncidentLab — Cascading Retry Storm",
+  "uid": "incidentlab-retry-storm",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-5m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "A: request rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum(rate(a_requests_total[10s]))", "refId": "A" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "C: outstanding requests",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "c_requests_outstanding", "refId": "A" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "B: retry attempts / sec",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "rate(b_retry_attempts_total[10s])", "refId": "A" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "B: circuit breaker opens (cumulative)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "b_circuit_breaker_opens_total", "refId": "A" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "01-thundering-herd",
+  "failure_criteria": [
+    {
+      "name": "BREAK peak concurrent origin fetches >= 5x BASELINE (thundering herd mechanism)",
+      "metric": "break_origin_concurrency_ratio_to_baseline",
+      "operator": ">=",
+      "threshold": 5.0
+    },
+    {
+      "name": "BREAK P99 reaches at least 2x BASELINE (latency consequence)",
+      "metric": "break_p99_ratio_to_baseline",
+      "operator": ">=",
+      "threshold": 2.0
+    }
+  ],
+  "recovery_criteria": [
+    {
+      "name": "DB queries during FIX <= 15% of DB queries during BREAK",
+      "metric": "db_ratio",
+      "operator": "<=",
+      "threshold": 0.15
+    },
+    {
+      "name": "Error rate during FIX < 1%",
+      "metric": "fix_error_rate",
+      "operator": "<",
+      "threshold": 0.01
+    },
+    {
+      "name": "P99 latency during FIX <= 2x BASELINE P99",
+      "metric": "p99_ratio",
+      "operator": "<=",
+      "threshold": 2.0
+    }
+  ],
+  "informational_metrics": [
+    "break_db_queries",
+    "fix_db_queries",
+    "fix_cache_hits",
+    "fix_cache_misses",
+    "fix_lock_waits"
+  ]
+}

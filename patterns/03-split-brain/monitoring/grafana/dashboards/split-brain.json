@@ -1,0 +1,51 @@
+{
+  "title": "IncidentLab — Split-Brain",
+  "uid": "incidentlab-split-brain",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-5m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Leader status (1 = believes it's leader)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "node_is_leader", "legendFormat": "{{node_id}}", "refId": "A" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Writes accepted / sec, by node",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "rate(node_writes_accepted_total[10s])", "legendFormat": "{{node_id}}", "refId": "A" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Writes rejected / sec, by node (not leader)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "rate(node_writes_rejected_total[10s])", "legendFormat": "{{node_id}}", "refId": "A" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Witness claims granted vs rejected",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "rate(witness_claims_granted_total[10s])", "legendFormat": "granted {{node_id}}", "refId": "A" },
+        { "expr": "rate(witness_claims_rejected_total[10s])", "legendFormat": "rejected {{node_id}}", "refId": "B" }
+      ]
+    }
+  ]
+}
