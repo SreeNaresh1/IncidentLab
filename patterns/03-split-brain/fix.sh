@@ -62,9 +62,10 @@ echo "Mitigated election settled: exactly 1 leader (witness-mediated)."
 
 banner "RECONCILE"
 echo "Reconciling BREAK's leftover divergent data (epoch-based rule)..."
-mkdir -p results
+mkdir -p results && chmod 777 results 2>/dev/null || true
 python3 reconcile.py "http://localhost:8020" "http://localhost:8021" --apply --output results/reconcile_report.json 2>/dev/null || \
 docker exec incidentlab-03-node-1 python3 /app/pattern/reconcile.py "http://node-1:8000" "http://node-2:8000" --apply --output /app/pattern/results/reconcile_report.json
+chmod 666 results/reconcile_report.json 2>/dev/null || docker exec incidentlab-03-node-1 chmod 666 /app/pattern/results/reconcile_report.json 2>/dev/null || true
 echo ""
 
 banner "FIX load test"
@@ -82,14 +83,18 @@ else
 fi
 
 echo "Replaying load: 20s of writes against both nodes while partitioned..."
-docker compose run --no-deps --rm \
+docker compose run --user 0:0 --no-deps --rm \
   -e NODE1_URL="http://node-1:8000" -e NODE2_URL="http://node-2:8000" \
   -e RATE="15" -e DURATION="20s" \
   k6 run --summary-export="/scripts/results/fix_k6.json" /scripts/k6-script.js
 
+python3 collect_stats.py \
+  "http://localhost:8020" "http://localhost:8021" "http://localhost:8022" \
+  results/fix_stats.json --partition-confirmed 1 2>/dev/null || \
 docker exec incidentlab-03-node-1 python3 /app/pattern/collect_stats.py \
   "http://node-1:8000" "http://node-2:8000" "http://witness:8000" \
   /app/pattern/results/fix_stats.json --partition-confirmed 1
+chmod 666 results/fix_stats.json 2>/dev/null || docker exec incidentlab-03-node-1 chmod 666 /app/pattern/results/fix_stats.json 2>/dev/null || true
 
 # Fold the reconciliation counts into fix_stats.json's "computed" section
 # so verify.py can expose them as informational metrics without needing

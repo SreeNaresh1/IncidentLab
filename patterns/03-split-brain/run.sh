@@ -37,13 +37,14 @@ _post('http://node-2:8000/admin/reset', {'keep_data': False})
 sleep 2
 
 echo "Checking precondition: exactly one leader, zero divergence..."
-mkdir -p results
+mkdir -p results && chmod 777 results 2>/dev/null || true
 python3 collect_stats.py \
   "http://localhost:8020" "http://localhost:8021" "http://localhost:8022" \
   results/baseline_stats.json 2>/dev/null || \
 docker exec incidentlab-03-node-1 python3 /app/pattern/collect_stats.py \
   "http://node-1:8000" "http://node-2:8000" "http://witness:8000" \
   /app/pattern/results/baseline_stats.json
+chmod 666 results/baseline_stats.json 2>/dev/null || docker exec incidentlab-03-node-1 chmod 666 /app/pattern/results/baseline_stats.json 2>/dev/null || true
 LEADER_COUNT=$(python3 -c "import json; print(json.load(open('results/baseline_stats.json'))['computed']['leader_count'])")
 if [ "$LEADER_COUNT" != "1" ]; then
   echo "Precondition FAILED: expected exactly 1 leader, got ${LEADER_COUNT}." >&2
@@ -55,7 +56,7 @@ fi
 echo "Precondition OK: exactly 1 leader."
 
 echo "Running baseline load (RATE=15/s, 20s)..."
-docker compose run --no-deps --rm \
+docker compose run --user 0:0 --no-deps --rm \
   -e NODE1_URL="http://node-1:8000" -e NODE2_URL="http://node-2:8000" \
   -e RATE="15" -e DURATION="20s" \
   k6 run --summary-export="/scripts/results/baseline_k6.json" /scripts/k6-script.js

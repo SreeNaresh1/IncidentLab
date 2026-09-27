@@ -66,16 +66,20 @@ PARTITION_CONFIRMED=1
 sleep 1
 
 echo "Injecting failure: 20s of writes against both nodes while partitioned..."
-mkdir -p results
-docker compose run --no-deps --rm \
+mkdir -p results && chmod 777 results 2>/dev/null || true
+docker compose run --user 0:0 --no-deps --rm \
   -e NODE1_URL="http://node-1:8000" -e NODE2_URL="http://node-2:8000" \
   -e RATE="15" -e DURATION="20s" \
   k6 run --summary-export="/scripts/results/break_k6.json" /scripts/k6-script.js
 
 banner "3. OBSERVE"
+python3 collect_stats.py \
+  "http://localhost:8020" "http://localhost:8021" "http://localhost:8022" \
+  results/break_stats.json --partition-confirmed "${PARTITION_CONFIRMED}" 2>/dev/null || \
 docker exec incidentlab-03-node-1 python3 /app/pattern/collect_stats.py \
   "http://node-1:8000" "http://node-2:8000" "http://witness:8000" \
   /app/pattern/results/break_stats.json --partition-confirmed "${PARTITION_CONFIRMED}"
+chmod 666 results/break_stats.json 2>/dev/null || docker exec incidentlab-03-node-1 chmod 666 /app/pattern/results/break_stats.json 2>/dev/null || true
 
 # Deliberately NOT healing the partition here. Force-recreating node-2 to
 # restore cluster-net would wipe its in-memory KV store -- exactly the

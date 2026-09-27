@@ -51,6 +51,7 @@ services:
 
   k6:
     image: grafana/k6:1.3.0
+    user: root
     profiles: ["tools"] # only runs via `docker compose run k6 ...`, not `up`
     volumes:
       - ./load:/scripts

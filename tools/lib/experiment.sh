@@ -114,9 +114,9 @@ run_load() {
   local vus="$2"
   local duration="$3"
   local extra_env_args="${4:-}"  # optional; empty string is safe
-  mkdir -p results
+  mkdir -p results && chmod 777 results 2>/dev/null || true
   # shellcheck disable=SC2086  # word-split on extra_env_args is intentional
-  docker compose run --rm \
+  docker compose run --user 0:0 --rm \
     -e VUS="${vus}" \
     -e DURATION="${duration}" \
     ${extra_env_args} \

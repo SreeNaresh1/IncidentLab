@@ -88,6 +88,7 @@ services:
 
   k6:
     image: grafana/k6:1.3.0
+    user: root
     profiles: ["tools"]
     networks:
       - quorum-net
