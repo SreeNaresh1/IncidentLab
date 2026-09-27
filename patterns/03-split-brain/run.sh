@@ -8,7 +8,7 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
-TOOLS_LIB="../../tools/lib"
+TOOLS_LIB="${SCRIPT_DIR}/../../tools/lib"
 source "${TOOLS_LIB}/experiment.sh"
 
 banner "1. BASELINE"

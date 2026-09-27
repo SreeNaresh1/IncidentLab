@@ -7,9 +7,17 @@ export MSYS_NO_PATHCONV=1
 export PYTHONUTF8=1
 export PYTHONIOENCODING=utf-8
 
-# Use relative path so Python invocation works across Linux, macOS, and Windows/MSYS
-TOOLS_LIB="../../tools/lib"
-VERIFY_PY="${TOOLS_LIB}/verify.py"
+EXPERIMENT_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if command -v cygpath >/dev/null 2>&1; then
+  # On Windows MSYS/Git Bash with MSYS_NO_PATHCONV=1, convert to Windows path for native python.exe
+  TOOLS_LIB="$(cygpath -w "${EXPERIMENT_LIB_DIR}")"
+  VERIFY_PY="$(cygpath -w "${EXPERIMENT_LIB_DIR}/verify.py")"
+else
+  # On Linux/macOS/CI, preserve the absolute POSIX path
+  TOOLS_LIB="${EXPERIMENT_LIB_DIR}"
+  VERIFY_PY="${EXPERIMENT_LIB_DIR}/verify.py"
+fi
 
 BOLD=$(tput bold 2>/dev/null || echo "")
 RESET=$(tput sgr0 2>/dev/null || echo "")
