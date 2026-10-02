@@ -58,7 +58,7 @@ real incident to recover from in the first place.
 |---|---------|--------|
 | 01 | [Thundering Herd](patterns/01-thundering-herd/README.md) | ✅ validated (real Docker run on record) |
 | 02 | [Cascading Retry Storm](patterns/02-cascading-retry-storm/README.md) | ✅ validated (real Docker run on record) |
-| 03 | [Split-Brain](patterns/03-split-brain/README.md) | built, not yet run for real |
+| 03 | [Split-Brain](patterns/03-split-brain/README.md) | ✅ validated (real Docker run on record) |
 
 Deliberately starting with three, built well, before expanding. See
 [`schema/pattern.schema.yaml`](schema/pattern.schema.yaml) for the schema

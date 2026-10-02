@@ -61,6 +61,18 @@ docker compose run --user 0:0 --no-deps --rm \
   -e RATE="15" -e DURATION="20s" \
   k6 run --summary-export="/scripts/results/baseline_k6.json" /scripts/k6-script.js
 
+# Capture stats AFTER the load run so baseline_stats.json reflects a live
+# system under real traffic, not the empty pre-load state.  break.sh and
+# fix.sh already do this correctly; this brings baseline into line with them.
+echo "Capturing post-load baseline stats..."
+python3 collect_stats.py \
+  "http://localhost:8020" "http://localhost:8021" "http://localhost:8022" \
+  results/baseline_stats.json 2>/dev/null || \
+docker exec incidentlab-03-node-1 python3 /app/pattern/collect_stats.py \
+  "http://node-1:8000" "http://node-2:8000" "http://witness:8000" \
+  /app/pattern/results/baseline_stats.json
+chmod 666 results/baseline_stats.json 2>/dev/null || docker exec incidentlab-03-node-1 chmod 666 /app/pattern/results/baseline_stats.json 2>/dev/null || true
+
 echo ""
 echo "Baseline captured. Grafana: http://localhost:3002  (anonymous access enabled)"
 echo "Next: ./break.sh"

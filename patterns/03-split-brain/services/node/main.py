@@ -60,7 +60,7 @@ import socket
 from urllib.parse import urlparse, urlunparse
 
 _witness_ip_url = None
-_peer_check_lock = asyncio.Lock()
+_peer_check_in_progress = False
 
 
 def get_witness_url():
@@ -78,11 +78,16 @@ def get_witness_url():
 
 
 async def leader_check_naive():
-    if _peer_check_lock.locked():
-        state["is_leader"] = True
+    global _peer_check_in_progress
+    # If a heartbeat cycle is already running, skip — keep current state.
+    # Promoting to leader on a slow check would conflate "check is taking a
+    # while" with "peer is dead" — the exact same mistake the naive rule makes
+    # at the network level.  Skipping is the safe default.
+    if _peer_check_in_progress:
         return
 
-    async with _peer_check_lock:
+    _peer_check_in_progress = True
+    try:
         try:
             resp = await asyncio.wait_for(
                 http_client.get(f"{PEER_URL}/health"),
@@ -100,6 +105,8 @@ async def leader_check_naive():
             # Healthy pair: deterministic tie-break, lower id is leader.
             state["is_leader"] = NODE_ID < PEER_ID
         state["current_epoch"] = 0  # naive never obtains a real fencing epoch
+    finally:
+        _peer_check_in_progress = False
 
 
 async def leader_check_mitigated():

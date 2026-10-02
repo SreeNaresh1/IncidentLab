@@ -1,10 +1,10 @@
 # Experiment Result — 03-split-brain
 
-Generated: 2026-09-27T12:35:02+00:00
+Generated: 2026-10-02T09:42:13+00:00
 
 ## Baseline
 
-- HTTP requests: 301
+- HTTP requests: 300
 - Request rate: 15.0/s
 - P99: 2 ms
 - Errors: 0.00%
@@ -13,7 +13,7 @@ Generated: 2026-09-27T12:35:02+00:00
 
 - HTTP requests: 301
 - Request rate: 15.0/s
-- P99: 2 ms
+- P99: 1 ms
 - Errors: 0.00%
 
 ## Fix
@@ -38,10 +38,10 @@ Generated: 2026-09-27T12:35:02+00:00
 
 ## Additional signals (informational — not pass/fail)
 
-- fix_availability_accepted_writes: 156
+- fix_availability_accepted_writes: 159
 - fix_availability_total_writes: 301
-- fix_availability_rate: 51.83%
-- fix_follower_writes_rejected: 145
+- fix_availability_rate: 52.82%
+- fix_follower_writes_rejected: 142
 - reconciled_keys_pushed: 0
 - reconciled_keys_discarded: 20
 

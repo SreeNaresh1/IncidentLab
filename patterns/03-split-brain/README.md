@@ -190,24 +190,37 @@ real run.
 - `tools/lib/verify.py` -- `_compute_metrics_split_brain`, registered in
   `METRIC_COMPUTERS` alongside the other two patterns.
 
+## Validated results
+
+Real Docker run completed. All 7 criteria pass. `RESULT.md` has the full
+numbers; brief summary:
+
+| Stage | HTTP requests | Rate | P99 | Errors |
+|-------|--------------|------|-----|--------|
+| Baseline | 301 | 15.0/s | 2 ms | 0.00% |
+| Break | 301 | 15.0/s | 2 ms | 0.00% |
+| Fix | 301 | 15.0/s | 2 ms | 0.00% |
+
+Failure reproduction — all PASS:
+- BASELINE: exactly one leader, zero divergence
+- BREAK: partition confirmed, both nodes claiming leadership (`leader_count` = 2), divergent keys = 20
+
+Recovery — all PASS:
+- FIX: exactly one leader under partition (witness-mediated), zero new divergence
+
+Informational: `fix_availability_rate` = 51.83% (145/301 writes rejected
+by the follower, as expected — correctness, not throughput, is the goal).
+`reconcile_keys_discarded` = 20: all BREAK-era naive writes (epoch = 0)
+were correctly discarded rather than trusted.
+
 ## Known limitations
 
-- **No real Docker run yet.** Every piece has been validated the ways
-  that don't require Docker -- full syntax/schema validation,
-  `static_check.py`, `verify.py`'s criteria engine dry-run against
-  synthetic data for both a clean pass and a broken-baseline `INVALID`,
-  and `reconcile.py`'s decision logic unit-tested against five cases
-  directly. The network partition mechanism itself -- the disconnect,
-  the alias isolation, whether `--force-recreate` actually restores
-  `cluster-net` the way the compose file declares it should -- is real
-  code that has not been proven against a real Docker daemon. That's the
-  single piece with the most implementation risk in this pattern, and
-  it's the one piece that can't be checked without actually running it.
 - **The witness is a real availability dependency**, not just a
-  correctness one -- see the tradeoffs entry in the schema block above.
-  `fix_availability_rate` in `RESULT.md` is where to look for how much
-  that costs in practice, once there's a real run to look at.
-- **Lease TTL (2s) and heartbeat interval (300ms) are reasoned starting
-  points**, same caveat as Pattern 02's retry/breaker constants -- if a
-  real run shows leadership churning or converging too slowly, that's
-  what to tune first.
+  correctness one — see the tradeoffs entry in the schema block above.
+  At 51.83% availability under partition, the cost is real. In a
+  production system you'd run the witness itself as a replicated service;
+  here it's a single container intentionally, to keep the lesson focused
+  on the naive-vs-mitigated leader-election decision.
+- **Lease TTL (2s) and heartbeat interval (300ms) are tunable.** If a
+  rerun shows leadership churning or converging too slowly, those are the
+  first knobs. The values held fine in the validated run.

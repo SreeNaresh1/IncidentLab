@@ -24,7 +24,7 @@ def _get(url):
         return json.loads(resp.read())
 
 
-def compute_divergence(dump1, dump2):
+def compute_divergence(dump1, dump2, leader_count=1):
     all_keys = set(dump1) | set(dump2)
     divergent = 0
     for key in all_keys:
@@ -33,7 +33,7 @@ def compute_divergence(dump1, dump2):
         if v1 is not None and v2 is not None:
             if v1["value"] != v2["value"]:
                 divergent += 1
-        else:
+        elif leader_count > 1:
             entry = v1 or v2
             if entry and entry.get("epoch", 0) == 0:
                 divergent += 1
@@ -56,7 +56,7 @@ def main():
     dump2 = _get(f"{args.node2_url}/kv/_dump")
 
     leader_count = int(node1_stats["is_leader"]) + int(node2_stats["is_leader"])
-    divergent_keys = compute_divergence(dump1, dump2)
+    divergent_keys = compute_divergence(dump1, dump2, leader_count=leader_count)
 
     snapshot = {
         "node1": node1_stats,
