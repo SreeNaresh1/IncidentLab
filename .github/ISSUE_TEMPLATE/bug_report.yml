@@ -1,49 +1,56 @@
-name: 🐛 Bug Report
-description: Report an issue reproducing an experiment or running verification
-title: "bug: [Short description of issue]"
+name: Bug Report
+description: Report an issue or unexpected failure in an IncidentLab pattern
+title: "[Bug]: "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Please verify that you are running Docker Compose v2 and Python 3.10+ before filing a bug report.
+        Thanks for taking the time to report an issue! Please provide details to help reproduce and isolate the problem.
   - type: dropdown
     id: pattern
     attributes:
-      label: Which pattern is affected?
+      label: Pattern
+      description: Which pattern did you experience the issue in?
       options:
         - "01-thundering-herd"
         - "02-cascading-retry-storm"
         - "03-split-brain"
-        - "Shared tools / verify.py"
-        - "CI / GitHub Actions"
+        - "Shared Infrastructure / Tools / verify.py / CI"
     validations:
       required: true
   - type: dropdown
     id: stage
     attributes:
-      label: Which stage failed?
+      label: Experiment Stage
+      description: Which stage failed?
       options:
-        - "run.sh (Baseline)"
-        - "break.sh (Break / Observe)"
-        - "fix.sh (Fix / Reconcile)"
-        - "verify.sh (Verification)"
-        - "static_check.py"
+        - "1. BASELINE (./run.sh)"
+        - "2. BREAK (./break.sh)"
+        - "3. OBSERVE (Grafana / Prometheus)"
+        - "4. FIX (./fix.sh)"
+        - "5. VERIFY (./verify.sh)"
+        - "Docker Compose / Build"
     validations:
       required: true
   - type: textarea
-    id: reproduction
+    id: description
     attributes:
-      label: Steps to Reproduce & Terminal Output
-      description: Include the exact command and terminal error output.
-      placeholder: "Paste error logs here..."
+      label: Describe the Bug
+      description: What happened? What did you expect to happen?
     validations:
       required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Terminal Output / Error Logs
+      description: Paste relevant terminal output, RESULT.md, or docker compose logs.
+      render: shell
   - type: input
     id: environment
     attributes:
-      label: Environment Info
-      description: OS and Docker version
-      placeholder: "e.g., Ubuntu 24.04 / Docker 27.0.3 / Python 3.11"
+      label: Environment
+      description: Host OS, Docker version, and Compose version.
+      placeholder: e.g., Ubuntu 24.04 / macOS 14.5 / Windows WSL2, Docker 27.0, Compose v2.28
     validations:
       required: true

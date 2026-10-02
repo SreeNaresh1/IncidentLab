@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: GitHub Discussions
+    url: https://github.com/SreeNaresh1/ai-developer-toolkit/discussions
+    about: Ask questions, discuss distributed systems architectures, or suggest ideas.

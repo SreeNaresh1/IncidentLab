@@ -1,49 +1,57 @@
-name: 🧪 Propose a New Failure Pattern
+name: New Pattern Proposal
 description: Propose a new canonical distributed systems failure pattern for IncidentLab
-title: "feat(pattern): Proposal for [Pattern Name]"
-labels: ["new-pattern", "proposal"]
+title: "[Pattern Proposal]: "
+labels: ["enhancement", "pattern-proposal"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for proposing a new incident pattern! Every pattern in IncidentLab must adhere to [`schema/pattern.schema.yaml`](https://github.com/SreeNaresh1/ai-developer-toolkit/blob/main/schema/pattern.schema.yaml).
+        IncidentLab prioritizes canonical, deterministic, and architecturally distinct failure modes. Please review the [Pattern Schema](schema/pattern.schema.yaml) before submitting.
   - type: input
-    id: pattern-name
+    id: pattern_name
     attributes:
-      label: Pattern Name & Category
-      description: What is the canonical name and category of this failure?
-      placeholder: "e.g., Unbounded Queue & OOM Collapse (Category: Resource Depletion)"
+      label: Pattern Name
+      placeholder: e.g., Unbounded Queue OOM Collapse, Distributed Deadlock, Clock Drift
     validations:
       required: true
-  - type: textarea
-    id: mechanism
+  - type: dropdown
+    id: category
     attributes:
-      label: Failure Mechanism
-      description: Explain the exact sequence of events that triggers this failure.
-      placeholder: "e.g., Upstream publisher produces faster than downstream consumer can process, unbounded queue absorbs messages until cgroup memory limit is exceeded..."
+      label: Failure Domain / Category
+      options:
+        - "Resource Depletion / Memory / Backpressure"
+        - "Locking / Deadlocks / Concurrency"
+        - "Consensus / Leader Election / Split-Brain"
+        - "Time / Clock Synchronization / Leases"
+        - "Cascading Failure / Retries"
+        - "Caching / Stampedes"
+        - "Other"
     validations:
       required: true
   - type: textarea
     id: topology
     attributes:
-      label: Proposed Topology
-      description: What minimal Docker services are needed to reproduce this?
-      placeholder: "e.g., FastAPI Producer + RabbitMQ/Redis Queue + Worker Consumer with limited memory cgroup"
+      label: Minimal Topology
+      description: What is the minimal set of Docker containers needed to reproduce this without excess bloat?
+      placeholder: e.g., 1 Producer + 1 Slow Consumer + 1 In-Memory Broker
+    validations:
+      required: true
+  - type: textarea
+    id: mechanism
+    attributes:
+      label: Failure Trigger & Mechanism
+      description: How is the failure deterministically triggered in BREAK, and what is the measurable symptom?
     validations:
       required: true
   - type: textarea
     id: mitigation
     attributes:
       label: Architectural Mitigation
-      description: What production pattern fixes or prevents this failure?
-      placeholder: "e.g., Bounded drop-head queueing, backpressure signaling, TCP window zero-probe"
+      description: What production-grade technique or algorithm mitigates the incident in FIX?
     validations:
       required: true
   - type: textarea
-    id: verification-criteria
+    id: references
     attributes:
-      label: Measurable Invariant Criteria
-      description: What explicit Prometheus counter or k6 metric proves reproduction and recovery?
-      placeholder: "e.g., failure: worker_oom_kills_total > 0; recovery: drop_head_rejections > 0 and worker_oom_kills_total == 0"
-    validations:
-      required: true
+      label: Real-World References & Postmortems
+      description: Link any public postmortems (AWS, Cloudflare, Meta, Netflix, etc.) demonstrating this failure in production.
