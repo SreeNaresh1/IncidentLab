@@ -1,0 +1,49 @@
+name: 🧪 Propose a New Failure Pattern
+description: Propose a new canonical distributed systems failure pattern for IncidentLab
+title: "feat(pattern): Proposal for [Pattern Name]"
+labels: ["new-pattern", "proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing a new incident pattern! Every pattern in IncidentLab must adhere to [`schema/pattern.schema.yaml`](https://github.com/SreeNaresh1/ai-developer-toolkit/blob/main/schema/pattern.schema.yaml).
+  - type: input
+    id: pattern-name
+    attributes:
+      label: Pattern Name & Category
+      description: What is the canonical name and category of this failure?
+      placeholder: "e.g., Unbounded Queue & OOM Collapse (Category: Resource Depletion)"
+    validations:
+      required: true
+  - type: textarea
+    id: mechanism
+    attributes:
+      label: Failure Mechanism
+      description: Explain the exact sequence of events that triggers this failure.
+      placeholder: "e.g., Upstream publisher produces faster than downstream consumer can process, unbounded queue absorbs messages until cgroup memory limit is exceeded..."
+    validations:
+      required: true
+  - type: textarea
+    id: topology
+    attributes:
+      label: Proposed Topology
+      description: What minimal Docker services are needed to reproduce this?
+      placeholder: "e.g., FastAPI Producer + RabbitMQ/Redis Queue + Worker Consumer with limited memory cgroup"
+    validations:
+      required: true
+  - type: textarea
+    id: mitigation
+    attributes:
+      label: Architectural Mitigation
+      description: What production pattern fixes or prevents this failure?
+      placeholder: "e.g., Bounded drop-head queueing, backpressure signaling, TCP window zero-probe"
+    validations:
+      required: true
+  - type: textarea
+    id: verification-criteria
+    attributes:
+      label: Measurable Invariant Criteria
+      description: What explicit Prometheus counter or k6 metric proves reproduction and recovery?
+      placeholder: "e.g., failure: worker_oom_kills_total > 0; recovery: drop_head_rejections > 0 and worker_oom_kills_total == 0"
+    validations:
+      required: true

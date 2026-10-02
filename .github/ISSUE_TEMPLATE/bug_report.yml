@@ -1,0 +1,49 @@
+name: 🐛 Bug Report
+description: Report an issue reproducing an experiment or running verification
+title: "bug: [Short description of issue]"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please verify that you are running Docker Compose v2 and Python 3.10+ before filing a bug report.
+  - type: dropdown
+    id: pattern
+    attributes:
+      label: Which pattern is affected?
+      options:
+        - "01-thundering-herd"
+        - "02-cascading-retry-storm"
+        - "03-split-brain"
+        - "Shared tools / verify.py"
+        - "CI / GitHub Actions"
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Which stage failed?
+      options:
+        - "run.sh (Baseline)"
+        - "break.sh (Break / Observe)"
+        - "fix.sh (Fix / Reconcile)"
+        - "verify.sh (Verification)"
+        - "static_check.py"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce & Terminal Output
+      description: Include the exact command and terminal error output.
+      placeholder: "Paste error logs here..."
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment Info
+      description: OS and Docker version
+      placeholder: "e.g., Ubuntu 24.04 / Docker 27.0.3 / Python 3.11"
+    validations:
+      required: true
